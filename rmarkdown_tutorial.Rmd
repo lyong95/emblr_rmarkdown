@@ -2,474 +2,155 @@
 title: "rmarkdown"
 author: "Luoyan Yong"
 date: "27/04/2021"
-output: 
-  html_document
-params:
-  my_class: "compact"
-  start: !r lubridate::ymd("2021-06-01")
+output: html_document
 ---
 
-## Three ways to use rmarkdown
+# Header 1
 
-1.  Reporting conclusions without going into the code
-2.  collaboration with others who might be interested in both the conclusions you draw and code behind.
-3.  lab notebook to record what you did and the thinking process behind
+## Header 2
 
-## Basic parts of an rmarkdown document
-### 1. Text with simple formatting
+### Header 3
 
-| enclose with      | example   |
-|-------------------|-----------|
-| \* or \_          | *italics* |
-| \*\* or \_\_      | **bold**  |
-| `|`nrow(mtcars)\` |           |
-| \^                | 10^2^     |
-| \~                | log~10~   |
+#### Header 4
 
-[Rmd cheatsheet][<https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf>]
+bullet points
 
-### 2. code chunk
 
-Add with one of the 3 ways:
+| enclose with      | example                |
+|-------------------|------------------------|
+| \* or \_          | *italics*              |
+| \*\* or \_\_      | **bold**               |
+| \~\~              | \~\~strikethrough \~\~ |
+| `|`nrow(mtcars)\` |                        |
+| \^                | 10^2^                  |
+| \~                | log~10~                |
 
--   Cmd/Ctrl + Alt + I
--   Insert button
--   typing in chunk delimiter
-
-```{r chunk demo}
-print("I am the output of this code chunk.")
-
+```{r}
+#[google image](https://www.image.google.com)
+#![embl logo](https://www.embl.de/layout/images/external/common/embl_logo.png)
 ```
+
+[google image](https://www.image.google.com)
+
+![embl logo](https://www.embl.de/layout/images/external/common/embl_logo.png)
+
+![rmd workfllow](/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/workflow.png)
+
+## Code chunk
+
+- shortcut = add with ```r or cmd+opt+I
+- shortcut for adding %>% 
+- naming chunk
+
+### chunk options
+
+```{r, message = FALSE}
+message("You will not see the message.")
+```
+
+
+```{r, warning = FALSE}
+1:2 + 1:3
+```
+
 
 ![chunk options](/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/chunk_options_table.png)
+### Caching
 
-```{r, include = FALSE}
-library(dplyr)
-library(ggplot2)
-```
+-   good for loading up computationally expensive output
+-   not based on dependencies
 
-```{r, eval = FALSE}
-ggplot(mtcars, aes(x = cyl, y = mpg)) + 
-  geom_point()
-
-```
-
-#### Caching
-Be careful about caching + good for loading up computationally expensive output - not based on dependencies
-
-```{r}
-data = mtcars[1:10, ]
-
-```
-
-```{r, cache=TRUE}
-proc = dplyr::filter(data, am == 1)
-head(proc)
-
-```
-
----
-```{r}
-data = mtcars[11:20, ]
-proc = dplyr::filter(data, am == 1)
-head(proc)
-
-```
-
-#### Global options
+### Global options
 
 defines default for every chunk
 
 ```{r}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
-```{r}
+### Inline code
 
-dec = function(x) format(x, digits = 2)
-ave = mean(data$wt)
-```
+The data consists of `r length(unique(esoph$agegp))` age groups.
 
-#### Inline code
-
-There are a total of `r nrow(data)` cars in the dataset with an average weight of `r dec(ave)` lbs
-
-### 4. YAML header
+### 3. YAML header
 
 #### Params
 
-useful for re-rendering same report for different parameters
+- useful for re-rendering same report for different parameters
 
-```{r}
-head(mpg)
+- subset of same data
 
-```
+- show different dataset inputs
 
-For the dataset above, you will find that it has `r length(unique(mpg$class))` unique classes. To generate the same report for values from each class, params can be declared in the header. 
+- show GUI for knit with parameters
 
-```{r}
-class = mpg %>%  filter(class == params$my_class)
+- add toc/ toc_float
 
-ggplot(class, aes(displ, hwy)) +
-  geom_point()
+- theme (output: 
+  rmdformats::readthedown)
 
-```
+[Rmd cheatsheet][<https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf>]
+
 ## Output formats
-Rmarkdown can the generate the following document types:
-- pdf_document (requires LaTex)
-- word_document
-- odt_document
-- rtf_document
-- md_document
-- github_document
+
 
 #### How to generate output format?
-- change output in YAML
-- rmarkdown::render()
-- knit dropdown
+
+-   change output in YAML
+-   rmarkdown::render() + params
+-   knit dropdown
 
 #### output options
-check parameters associated with specific outputs and change it by expanding
-output field
-````{r}
+
+check parameters associated with specific outputs and change it by expanding output field
+
+```{r}
 ?rmarkdown::html_document
 
 ```
 
+why html is a common method : easier access, ability to apply themes, simple to make "websites"
+
 ## More output formats
+
 #### Presentations [<https://rpubs.com/lyong/768323>]
-#### Dashboards [<https://rpubs.com/lyong/768330>]
-#### Shiny app [<https://luoyan-yong.shinyapps.io/demonstrate_CLT/>]
-#### website (rmarkdown::render_site())
 
-## Graphics for Communication
-### Labels
-Add descriptive plot title 
-```{r}
-ggplot(mpg, aes(displ, hwy)) +
-  geom_point(aes(color = class)) +
-  geom_smooth(se = FALSE) +
-  labs(title = "Fuel efficiency generally decreases with engine size")
+## formatting
 
-```
+format slide title with "\#\#" or "---" to omit title
 
-Add subtitles and/or captions
-```{r}
-ggplot(mpg, aes(displ, hwy)) +
-  geom_point(aes(color = class)) +
-  geom_smooth(se = FALSE) +
-  labs(
-    title = "Fuel efficiency generally decreases with engine size",
-    subtitle = "Two seaters (sports cars) are an exception because of their light weight",
-    caption = "Data from fueleconomy.gov"
-  )
+With every ddition of "\#", the heading is brought down by 1 size
 
-```
+### Heading
 
-Replace axis or legend titles with labs()
-```{r}
-ggplot(mpg, aes(displ, hwy)) +
-  geom_point(aes(colour = class)) +
-  geom_smooth(se = FALSE) +
-  labs(
-    x = "Engine displacement (L)",
-    y = "Highway fuel economy (mpg)",
-    colour = "Car type"
-  )
+#### Heading
 
-```
+##### Heading
 
-add math formulas with quote()
-```{r}
-df <- tibble(
-  x = runif(10),
-  y = runif(10)
-)
-ggplot(df, aes(x, y)) +
-  geom_point() +
-  labs(
-    x = "sum(x[i] ^ 2, i == 1, n)",
-    y = "alpha + beta + frac(delta, theta)"
-  )
+### Use - for bullet points:
 
-```
+-   Point1
+-   Point2
 
-### Annotations
-label individual observations or groups with geom_text()
-```{r}
-best_in_class <- mpg %>%
-  group_by(class) %>%
-  filter(row_number(desc(hwy)) == 1)
-
-ggplot(mpg, aes(displ, hwy)) +
-  geom_point(aes(colour = class)) +
-  geom_text(aes(label = model), data = best_in_class)
-
-```
-
-highlight text by adding boxes with geom_label()
-```{r}
-ggplot(mpg, aes(displ, hwy)) +
-  geom_point(aes(colour = class)) +
-  geom_label(aes(label = model), data = best_in_class, nudge_y = 2, alpha = 0.5)
-
-```
-
-automatically adjust labels to prevent overlap using ggrepel pacakge and
-add layer to highlight points
-```{r}
-ggplot(mpg, aes(displ, hwy)) +
-  geom_point(aes(colour = class)) +
-  #geom_point(size = 3, shape = 1, data = best_in_class) +
-  ggrepel::geom_label_repel(aes(label = model), data = best_in_class)
-
-```
-
-replace legend with labels directly on plot
-```{r}
-class_avg <- mpg %>%
-  group_by(class) %>%
-  summarise(
-    displ = median(displ),
-    hwy = median(hwy)
-  )
-#> `summarise()` ungrouping output (override with `.groups` argument)
-
-ggplot(mpg, aes(displ, hwy, colour = class)) +
-  ggrepel::geom_label_repel(aes(label = class),
-    data = class_avg,
-    size = 6,
-    label.size = 0,
-    segment.color = NA
-  ) +
-  geom_point() +
-  theme(legend.position = "none")
-```
-
-add text in plot border with Inf and wrap text using \n or stringr::str_wrap()
-```{r}
-
-label <- tibble(
-  displ = Inf,
-  hwy = Inf,
-  label = "Increasing engine size is \nrelated to decreasing fuel economy."
-)
-
-ggplot(mpg, aes(displ, hwy)) +
-  geom_point() +
-  geom_text(aes(label = label), data = label, vjust = "top", hjust = "right")
-
-```
-
-use vjust and hjust to adjust position of your labels or text
-![combinations of hjust and vjust](/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/hjust_vjust_combinations.png)
-
-
-### Scales
-adjust your axis ticks for better visualisation, suppress labels with NULL
-```{r}
-ggplot(mpg, aes(displ, hwy)) +
-  geom_point() +
-  scale_y_continuous(breaks = seq(15, 40, by = 5))
-
-```
-
-adjust breaks especially when you have sparse data points
-```{r}
-presidential %>%
-  mutate(id = 33 + row_number()) %>%
-  ggplot(aes(start, id)) +
-    geom_point() +
-    geom_segment(aes(xend = end, yend = id)) +
-    scale_x_date(NULL, breaks = presidential$start, date_labels = "'%y")
-
-```
-
-use theme to adjust legend position
-```{r}
-base <- ggplot(mpg, aes(displ, hwy)) +
-  geom_point(aes(colour = class))
-
-base + theme(legend.position = "left")
-base + theme(legend.position = "top")
-base + theme(legend.position = "bottom")
-base + theme(legend.position = "right") # the default
-
-```
-
-use guides() to control legend display
-```{r}
-ggplot(mpg, aes(displ, hwy)) +
-  geom_point(alpha = 0.2, aes(colour = class)) +
-  geom_smooth(se = FALSE) +
-  theme(legend.position = "bottom") +
-  guides(colour = guide_legend(nrow = 1, override.aes = list(size = 4)))
-#> `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-
-```
-
-Replace entire scale 
-```{r}
-ggplot(diamonds, aes(carat, price)) +
-  geom_bin2d()
-
-ggplot(diamonds, aes(log10(carat), log10(price))) +
-  geom_bin2d()
-
-```
-
-adjusting color with RColorBrewer
-```{r}
-RColorBrewer::display.brewer.all()
-
-```
-
-use color-blind friendly theme
-```{r}
-ggplot(mpg, aes(displ, hwy)) +
-  geom_point(aes(color = drv))
-
-ggplot(mpg, aes(displ, hwy)) +
-  geom_point(aes(color = drv)) +
-  scale_colour_brewer(palette = "Set1")
-
-```
-
-use scale_color_manual to use predefined mapping between values and colors
-```{r}
-presidential %>%
-  mutate(id = 33 + row_number()) %>%
-  ggplot(aes(start, id, colour = party)) +
-    geom_point() +
-    geom_segment(aes(xend = end, yend = id))
-    #scale_colour_manual(values = c(Republican = "red", Democratic = "blue"))
-
-```
-
-adjust continuous color scales with scale_color_gradient() or scale_fill_gradient() or viridis package
+## code chunks and output
 
 ```{r}
-df <- tibble(
-  x = rnorm(10000),
-  y = rnorm(10000)
-)
-ggplot(df, aes(x, y)) +
-  geom_hex() +
-  coord_fixed()+
-  labs(title = "default scale fill")
-
-ggplot(df, aes(x, y)) +
-  geom_hex() +
-  scale_fill_gradient2(low = "pink", mid = "blue", high = "white")+
-  coord_fixed() +
-  labs(title = "user-defined scale fill")
-
-ggplot(df, aes(x, y)) +
-  geom_hex() +
-  viridis::scale_fill_viridis()+
-  coord_fixed() +
-  labs(title = "Viridis scale fill")
+# toggle chunk options to remove display of code
+plot(cars)
 
 ```
 
-### Zooming 
+## display modes
 
-zoom into a plot region using coord_cartesian
-```{r}
-ggplot(mpg, mapping = aes(displ, hwy)) +
-  geom_point(aes(color = class)) +
-  geom_smooth() 
-  #coord_cartesian(xlim = c(5, 7), ylim = c(10, 30))
+> -   "f": full screen
+> -   "w": widescreen
+> -   "o": overview
+> -   "h": highlight code
+> -   "p" presenter notes
 
+<div> {.notes}
+This is my *note*.
+</div>
 
-```
-
-Adjust plot limits to allow comparison on the same scale
-```{r}
-suv <- mpg %>% filter(class == "suv")
-compact <- mpg %>% filter(class == "compact")
-
-p1 <- ggplot(suv, aes(displ, hwy, colour = drv)) +
-  geom_point()
-
-p2 <- ggplot(compact, aes(displ, hwy, colour = drv)) +
-  geom_point()
-
-ggpubr::ggarrange(p1, p2, ncol = 1)
-
-```
-
-Expand scale of the 2nd plot so that it is comparable
-````{r}
-x_scale <- scale_x_continuous(limits = range(mpg$displ))
-y_scale <- scale_y_continuous(limits = range(mpg$hwy))
-col_scale <- scale_colour_discrete(limits = unique(mpg$drv))
-
-p1 <- ggplot(suv, aes(displ, hwy, colour = drv)) +
-  geom_point() +
-  x_scale +
-  y_scale +
-  col_scale
-
-p2 <- ggplot(compact, aes(displ, hwy, colour = drv)) +
-  geom_point() +
-  x_scale +
-  y_scale +
-  col_scale
-
-ggpubr::ggarrange(p1, p2, ncol = 1)
-
-```
-
-### Themes
-by default, there are 8 themes in ggplot2, use ggthemes to add extra themes
-
-````{r, echo = FALSE}
-p <- ggplot(mpg, aes(displ, hwy)) +
-  geom_point(aes(color = class)) +
-  geom_smooth(se = FALSE) 
-
-p + theme_bw() +
-  labs(title = "theme_bw()")
-
-p + theme_classic() +
-  labs(title = "theme_classic()")
-
-p + theme_dark() +
-  labs(title = "theme_dark()")
-
-p + theme_light() +
-  labs(title = "theme_light")
-
-p + theme_gray() +
-  labs(title = "theme_gray()")
-
-t6 <- ggplot(mpg, aes(displ, hwy)) +
-  geom_point(aes(color = class)) +
-  geom_smooth(se = FALSE) +
-  theme_linedraw() +
-  labs(title = "theme_linedraw)")
-
-p + theme_minimal() +
-  labs(title = "theme_minimal)")
-
-p + theme_void() +
-  labs(title = "theme_void")
-
-```
-
-### Saving your plots
-use ggsave or knitr
-```{r}
-ggplot(mpg, aes(displ, hwy)) + geom_point()
-
-ggsave("my-plot.pdf")
-
-```
-
-adjust figure sizing with fig.width or out.width for output and add captio with fig.cap
-```{r, fig.width = 6, fig.asp = 0.618, fig.cap = "cars plot"}
-ggplot(mpg, aes(displ, hwy)) + geom_point()
-
-```
+#### Dashboards 

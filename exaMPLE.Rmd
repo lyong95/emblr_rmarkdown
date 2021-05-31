@@ -1,0 +1,51 @@
+---
+title: "Untitled"
+author: "Luoyan Yong"
+date: "30/05/2021"
+output: html_document
+---
+
+# Header 1
+## Header 2
+### Header 3
+
+- bullet 1 
+- bullet 2
+
+**bold**
+*italics*
+
+tables
+
+| enclose with      | example                |
+|-------------------|------------------------|
+| * or _            | *italics*              |
+| ** or __          | **bold**               |
+| \~\~              | \~\~strikethrough \~\~ |
+| `|`nrow(mtcars)\` |                        |
+| \^                | 10^2^                  |
+| \~                | log~10~                |
+
+[google image](https://images.google.com/?gws_rd=ssl)
+
+![embl logo](https://www.embl.de/layout/images/external/common/embl_logo.png)
+
+
+```{r}
+x = nrow(mtcars)
+
+```
+```{r}
+print(x)
+```
+
+```{r, message = FALSE}
+message("You will not see the message.")
+
+```
+
+```{r, warning = FALSE}
+1:2 + 1:3
+```
+
+

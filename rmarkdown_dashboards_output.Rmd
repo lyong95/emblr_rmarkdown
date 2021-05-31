@@ -1,42 +1,40 @@
 ---
-title: "Diamonds distribution dashboard"
+title: "Analysis of chemotherapy trial for colon cancer dashboard"
 output: flexdashboard::flex_dashboard
 ---
 
-```{r setup, include = FALSE}
-library(ggplot2)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+```
+
+```{r, include = FALSE}
+#load packages
 library(dplyr)
-knitr::opts_chunk$set(fig.width = 5, fig.asp = 1/3)
+library(tidyverse)
+library(survival)
+library(survminer)
 ```
 
-## Column 1
-
-### Carat
+## Do females survive better than males?
 
 ```{r}
-ggplot(diamonds, aes(carat)) + geom_histogram(binwidth = 0.1)
+data(colon)
+head(colon)
 ```
 
-### Cut
-
 ```{r}
-ggplot(diamonds, aes(cut)) + geom_bar()
+# compute kaplan-Meier survival estimate
+fit <- survfit(Surv(time, status) ~ sex, data = colon)
+
+# Change color, linetype by strata, risk.table color by strata
+ggsurvplot(fit,
+          pval = TRUE, conf.int = TRUE,
+          surv.median.line = "hv", # Specify median survival
+          palette = c("#E7B800", "#2E9FDF"))
 ```
 
-### Colour
-
+## Do patients with more than `r params$nodes_num`nodes detected with cancer survive less?
 ```{r}
-ggplot(diamonds, aes(color)) + geom_bar()
-```
-
-## Column 2
-
-### The largest diamonds
-
-```{r}
-diamonds %>% 
-  arrange(desc(carat)) %>% 
-  head(100) %>% 
-  select(carat, cut, color, price) %>% 
-  DT::datatable()
+colon_node = colon %>% filter(nodes > params$nodes_num)
+ggsurvplot(survfit(Surv(time, status)~nodes, data=colon_node))
 ```

@@ -1,44 +1,54 @@
 ---
-title: "Rmarkdown Presentation output"
+title: "Analysis of chemotherapy trial for colon cancer output"
 author: "Luoyan Yong"
 date: "10/05/2021"
 output: ioslides_presentation
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## formatting
-
-format slide title with "##" or "---" to omit title
-
-With every ddition of "#", the heading is brought down by 1 size
-
-### Heading 
-#### Heading
-##### Heading
-
-### Use - for bullet points:
-- Point1
-- Point2
-
-
-## code chunks and output
-```{r}
-# toggle chunk options to remove display of code
-plot(cars)
-
+```{r, include = FALSE}
+#load packages
+library(dplyr)
+library(tidyverse)
+library(survival)
+library(survminer)
 ```
 
-## display modes
-> - "f": full screen
-> - "w": widescreen
-> - "o": overview
-> - "h": highlight code
-> - "p" presenter notes
-
-<div class="notes">
-This is my *note*.
-
+## Description of data
+<div> {.notes}
+These are data from one of the *first* successful trials of adjuvant chemotherapy for colon cancer. There are two records per person, one for recurrence and one for death. 
 </div>
+
+```{r, message = FALSE}
+data(colon)
+head(colon)
+```
+
+## Do females survive better than males?
+
+```{r}
+# compute kaplan-Meier survival estimate
+fit <- survfit(Surv(time, status) ~ sex, data = colon)
+
+# Change color, linetype by strata, risk.table color by strata
+ggsurvplot(fit,
+          pval = TRUE, conf.int = TRUE,
+          surv.median.line = "hv", # Specify median survival
+          palette = c("#E7B800", "#2E9FDF"))
+```
+
+The median survival time for sex=1 (Male group) is 2200 days, while it is 2500 days for sex=2 (Female). 
+
+## Do patients with more than `r params$nodes_num`nodes detected with cancer survive less?
+
+<div> {.notes}
+It is also interesting to find out if survival rates of treatment differ between patients with more than `r params$nodes_num` nodes
+</div>
+
+```{r}
+colon_node = colon %>% filter(nodes > params$nodes_num)
+ggsurvplot(survfit(Surv(time, status)~nodes, data=colon_node))
+```

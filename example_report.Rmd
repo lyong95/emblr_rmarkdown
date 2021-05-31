@@ -1,0 +1,59 @@
+---
+title: "Analysis of chemotherapy trial for colon cancer"
+author: "Luoyan Yong"
+date: "13/05/2021"
+output: ioslides_presentation
+params: 
+  nodes_num: 30
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = FALSE)
+```
+[Rmd cheatsheet][<https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf>]
+
+```{r, include = FALSE}
+#load packages
+library(dplyr)
+library(tidyverse)
+library(survival)
+library(survminer)
+```
+
+## Description of data
+<div> {.notes}
+These are data from one of the *first* successful trials of adjuvant chemotherapy for colon cancer. There are two records per person, one for recurrence and one for death. 
+</div>
+![info](/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/info.png)
+
+```{r, message = FALSE}
+data(colon)
+head(colon)
+```
+
+The data set consisted of `r nrow(colon)` records.  A summary of the data set is presented in the table below.
+```{r}
+summary(colon)
+```
+## Do females survive better than males?
+
+```{r}
+# compute kaplan-Meier survival estimate
+fit <- survfit(Surv(time, status) ~ sex, data = colon)
+
+# Change color, linetype by strata, risk.table color by strata
+ggsurvplot(fit,
+          pval = TRUE, conf.int = TRUE,
+          surv.median.line = "hv", # Specify median survival
+          palette = c("#E7B800", "#2E9FDF"))
+```
+The median survival time for sex=1 (Male group) is 2200 days, while it is 2500 days for sex=2 (Female). 
+
+## Do patients with more than `r params$nodes_num`nodes detected with cancer survive less?
+It is also interesting to find out if survival rates of treatment differ between patients with more than
+`r params$nodes_num` nodes
+```{r}
+colon_node = colon %>% filter(nodes > params$nodes_num)
+ggsurvplot(survfit(Surv(time, status)~nodes, data=colon_node))
+```
+
