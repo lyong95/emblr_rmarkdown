@@ -2,14 +2,16 @@
 title: "Analysis of chemotherapy trial for colon cancer"
 author: "Luoyan Yong"
 date: "13/05/2021"
-output: ioslides_presentation
+output: html_document
 params: 
-  nodes_num: 30
+  age: 20
+  data: "/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/lung.csv"
 ---
 
 ```{r setup}
 knitr::opts_chunk$set(echo = FALSE)
 ```
+
 [Rmd cheatsheet][<https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf>]
 
 ```{r, include = FALSE}
@@ -21,25 +23,27 @@ library(survminer)
 ```
 
 ## Description of data
-<div> {.notes}
-These are data from one of the *first* successful trials of adjuvant chemotherapy for colon cancer. There are two records per person, one for recurrence and one for death. 
-</div>
+
+These are data from one of the *first* successful trials of adjuvant chemotherapy for colon cancer. There are two records per person, one for recurrence and one for death.
+
 ![info](/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/info.png)
 
 ```{r, message = FALSE}
-data(colon)
-head(colon)
+dat = read.csv(params$data)
+head(dat)
 ```
 
-The data set consisted of `r nrow(colon)` records.  A summary of the data set is presented in the table below.
+The data set consisted of `r nrow(dat)` records. A summary of the data set is presented in the table below.
+
 ```{r}
-summary(colon)
+summary(dat)
 ```
+
 ## Do females survive better than males?
 
 ```{r}
 # compute kaplan-Meier survival estimate
-fit <- survfit(Surv(time, status) ~ sex, data = colon)
+fit <- survfit(Surv(time, status) ~ sex, data = dat)
 
 # Change color, linetype by strata, risk.table color by strata
 ggsurvplot(fit,
@@ -47,13 +51,13 @@ ggsurvplot(fit,
           surv.median.line = "hv", # Specify median survival
           palette = c("#E7B800", "#2E9FDF"))
 ```
-The median survival time for sex=1 (Male group) is 2200 days, while it is 2500 days for sex=2 (Female). 
 
-## Do patients with more than `r params$nodes_num`nodes detected with cancer survive less?
-It is also interesting to find out if survival rates of treatment differ between patients with more than
-`r params$nodes_num` nodes
+The median survival time for sex=1 (Male group) is 2200 days, while it is 2500 days for sex=2 (Female).
+
+## Do patients older than a specified age survive less? 
+It is also interesting to find out if survival rates of treatment differ between patients with older than `r params$age`
+
 ```{r}
-colon_node = colon %>% filter(nodes > params$nodes_num)
-ggsurvplot(survfit(Surv(time, status)~nodes, data=colon_node))
+agegp = dat %>% filter(age > params$age)
+ggsurvplot(survfit(Surv(time, status)~ sex, data = agegp))
 ```
-

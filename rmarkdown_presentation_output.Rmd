@@ -3,6 +3,8 @@ title: "Analysis of chemotherapy trial for colon cancer output"
 author: "Luoyan Yong"
 date: "10/05/2021"
 output: ioslides_presentation
+params:
+  age: 10
 ---
 
 ```{r setup, include=FALSE}
@@ -42,13 +44,10 @@ ggsurvplot(fit,
 
 The median survival time for sex=1 (Male group) is 2200 days, while it is 2500 days for sex=2 (Female). 
 
-## Do patients with more than `r params$nodes_num`nodes detected with cancer survive less?
-
-<div> {.notes}
-It is also interesting to find out if survival rates of treatment differ between patients with more than `r params$nodes_num` nodes
-</div>
+## Do patients older than a specified age survive less? 
+It is also interesting to find out if survival rates of treatment differ between patients with older than `r params$age`
 
 ```{r}
-colon_node = colon %>% filter(nodes > params$nodes_num)
-ggsurvplot(survfit(Surv(time, status)~nodes, data=colon_node))
+agegp = dat %>% filter(age > params$age)
+ggsurvplot(survfit(Surv(time, status)~ sex, data = agegp))
 ```

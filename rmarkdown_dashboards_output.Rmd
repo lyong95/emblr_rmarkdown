@@ -1,6 +1,8 @@
 ---
 title: "Analysis of chemotherapy trial for colon cancer dashboard"
 output: flexdashboard::flex_dashboard
+params: 
+  age: 20
 ---
 
 ```{r setup, include=FALSE}
@@ -33,8 +35,10 @@ ggsurvplot(fit,
           palette = c("#E7B800", "#2E9FDF"))
 ```
 
-## Do patients with more than `r params$nodes_num`nodes detected with cancer survive less?
+## Do patients older than a specified age survive less? 
+It is also interesting to find out if survival rates of treatment differ between patients with older than `r params$age`
+
 ```{r}
-colon_node = colon %>% filter(nodes > params$nodes_num)
-ggsurvplot(survfit(Surv(time, status)~nodes, data=colon_node))
+agegp = dat %>% filter(age > params$age)
+ggsurvplot(survfit(Surv(time, status)~ sex, data = agegp))
 ```

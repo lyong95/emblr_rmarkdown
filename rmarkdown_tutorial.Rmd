@@ -5,16 +5,29 @@ date: "27/04/2021"
 output: html_document
 ---
 
-# Header 1
+## What is markdown?
+a langauge aimed at making writing in a text editor easier and readable with simple
+text formatting and easy to convert to html
 
-## Header 2
+### Text formatting
 
-### Header 3
+1.  Headers
 
-#### Header 4
+Header 1 - \#
 
-bullet points
+Header 2 - \#\#
 
+Header 3 - \#\#\#
+
+Header 4 - \#\#\#\#
+
+2.  Lists Bullet points can be added with -
+
+-   item 1
+-   item 2
+-   item 3
+
+3.  Tables + text formats
 
 | enclose with      | example                |
 |-------------------|------------------------|
@@ -25,10 +38,7 @@ bullet points
 | \^                | 10^2^                  |
 | \~                | log~10~                |
 
-```{r}
-#[google image](https://www.image.google.com)
-#![embl logo](https://www.embl.de/layout/images/external/common/embl_logo.png)
-```
+4.  Embed images and links
 
 [google image](https://www.image.google.com)
 
@@ -38,110 +48,222 @@ bullet points
 
 ## Code chunk
 
-- shortcut = add with ```r or cmd+opt+I
-- shortcut for adding %>% 
-- naming chunk
+1.  How to add code chunks?
 
-### chunk options
+-   Code\> Insert Chunk
+-   shortcut with cmd + opt + I
+-   manually typing `{r} and`
 
-```{r, message = FALSE}
+2. What is the advantages rmarkdown code chunks?
+- break down of code into smaller pieces 
+- ability to view output immediately below code chunk
+- ability to view progress of each code chunk
+- ability to know error occurs at which code chunk and roughly which line in the code chunk
+
+```{r}
+# try introducing a syntax error in one of the lines
+range(diamonds$price)
+
+mean(diamonds$x)
+mean(diamonds$y)
+mean(diamonds$z)
+
+unique(diamonds$cut)
+
+```
+```{r}
+ggplot(diamonds, aes(x = cut, y = price)) +
+  geom_boxplot()
+
+```
+
+
+
+
+As a result, code chunks makes your report more readable, logically organised and easy for troubleshooting
+
+### chunk Names
+
+-   better organise your code and easier navigation
+-   graphics will have useful name; chunk label is used to generate the file name of the graphic on disk
+-   special name "setup" to specify default options
+
+### Chunk options
+
+```{r cut vs price}
+library(tidyverse)
+library(dplyr)
+
+ggplot(diamonds, aes(x = cut, y = price)) +
+  geom_boxplot()
+
+```
+
+1.  Most common options
+
+-   echo: display and run both the code chunks and its outputs
+-   include: displays code only
+-   eval: suppress running of code but continues to display code
+
+Try out other options using the code chunk above ![chunk options](/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/chunk_options_table.png)
+
+2.  What are the differences between messages and warnings?
+
+```{r message example}
 message("You will not see the message.")
+library(tidyverse)
+
 ```
 
+```{r warning example}
+cor( c( 1 , 1 ), c( 2 , 3 ) )
+```
+- messages are produced to inform user of some operations completed without errors
+- warnings are produced in place of error messages when the computation can be completed and an output is produced but with abnormalities detected in the input
 
-```{r, warning = FALSE}
-1:2 + 1:3
+3.  Cache options
+
+-   great for loading up computationally expensive data when knitting
+-   based on the code chunk only and not dependencies (see example below)
+-   use dependson option to solve this prob
+
+```{r raw_data}
+rawdata <- diamonds[1:10, ]
+head(rawdata)
 ```
 
+Here processed data is cached but if rawdata file is changed, processed data will still run the dplyr pipeline for "a_very_large_file"
 
-![chunk options](/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/chunk_options_table.png)
-### Caching
+```{r processed_data, cache = TRUE, dependson = TRUE}
+processed_data <- rawdata %>% 
+  filter(cyl == 4) %>% 
+  mutate(sec = qsec*4)
 
--   good for loading up computationally expensive output
--   not based on dependencies
+head(processed_data)
+```
 
-### Global options
+4.  More options There are a total of 60 options, you can check them at the link below [chunk options](https://yihui.org/knitr/options/)
+
+5. Global options
 
 defines default for every chunk
 
-```{r}
+```{r setup}
 knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
 ### Inline code
 
-The data consists of `r length(unique(esoph$agegp))` age groups.
+The data consists of `r length(unique(diamonds$cut))` types of cut. The range of prices is between
+`r min(diamonds$price)` and `r max(diamonds$price)`
 
-### 3. YAML header
+## YAML header
 
-#### Params
+Yet Another Markdown Language; used to control whole report settings.
+Try out the following options with the example_report.rmd (can be downloaded from emblR github)
 
-- useful for re-rendering same report for different parameters
+### Params
 
-- subset of same data
+1. generating the same analysis for subsets of data
+-introduce 'age' variable in params and params$ageis now recognised as a variable
+in the code chunks
+- try changing the value of age at params and re-run the last code chunk
 
-- show different dataset inputs
+```{r subset of data, eval = FALSE}
+params: 
+  age: 20
+```
 
-- show GUI for knit with parameters
+2. one rmd document can be applied to many dataset
+- try specifying a param variable called 'data', and feed it the file path where you colon data can be found, knit the report
+- then, change the file path of your data to where your lung data can be found, knit the report again
+```{r multiple data, eval = FALSE}
+params: 
+  data: "/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/colon.csv"
+```
+OR the same can be done in the following ways
+-   using GUI for knit with parameters
+dropdown button from knit
 
-- add toc/ toc_float
+- use render() and also specify things like file names
 
-- theme (output: 
-  rmdformats::readthedown)
+```{r}
+rmarkdown::render(input = "example_report.Rmd", output_file = "colon_example_report.Rmd", params = list(data ="/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/colon.csv" ))
 
-[Rmd cheatsheet][<https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf>]
+```
+
+4. Generate multiple distinct reports with one rmd
+
+```{r}
+reports <- tibble(
+  data_type =  c("colon", "lung", "kidney"),
+  filename = stringr::str_c("example_report_", data_type, ".html"),
+  params = purrr::map(paste0(data_type, ".csv"),  ~ list(data = .))
+)
+
+reports %>% 
+  select(output_file = filename, params) %>% 
+  purrr::pwalk(rmarkdown::render, input = "example_report.Rmd")
+
+```
+
+
+
+[Rmd cheatsheet](https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf)
 
 ## Output formats
 
+1. Common output formats
+- check dropdown : html, pdf, word1
 
-#### How to generate output format?
-
+2. How to generate output format?
 -   change output in YAML
 -   rmarkdown::render() + params
 -   knit dropdown
 
-#### output options
-
+3. output options
 check parameters associated with specific outputs and change it by expanding output field
+```{r check output options}
+?rmarkdown::word_document
+```
+add elements like table of contents
 
-```{r}
-?rmarkdown::html_document
-
+try replacing the output options with the following
+```{r add toc, eval = FALSE}
+output:
+  html_document:
+    toc: true
+    toc_float: true
 ```
 
-why html is a common method : easier access, ability to apply themes, simple to make "websites"
-
-## More output formats
-
-#### Presentations [<https://rpubs.com/lyong/768323>]
-
-## formatting
-
-format slide title with "\#\#" or "---" to omit title
-
-With every ddition of "\#", the heading is brought down by 1 size
-
-### Heading
-
-#### Heading
-
-##### Heading
-
-### Use - for bullet points:
-
--   Point1
--   Point2
-
-## code chunks and output
-
-```{r}
-# toggle chunk options to remove display of code
-plot(cars)
-
+hide codes but allow users to click and view specific code chunks
+```{r hide code, eval = FALSE}
+output:
+  html_document:
+    code_folding: hide
 ```
 
-## display modes
+4. HTML format
+- html is a common method
+- easier access
+- simple to make "websites"
+- ability to apply theme 
+
+```{r html theme, eval = FALSE}
+#modify theme to make beautiful html outputs
+output: rmdformats::readthedown
+```
+
+5. Presentations
+Try converting your example_report.Rmd into presentations by specfying output in YAML header as
+ioslides_presentations
+
+-format slide title with "\#\#" or "---" to omit title
+
+- With every addition of "\#", the heading is brought down by 1 size
+
+- display modes
 
 > -   "f": full screen
 > -   "w": widescreen
@@ -149,8 +271,15 @@ plot(cars)
 > -   "h": highlight code
 > -   "p" presenter notes
 
-<div> {.notes}
-This is my *note*.
+- add presenter's notes with 
+<div>
+
+{.notes} This is my *note*.
+
 </div>
 
-#### Dashboards 
+6. Dashboards
+- level 1 header - new page
+- level 2 header - new column
+- level 3 header - new row
+
