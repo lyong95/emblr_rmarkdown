@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ## What is markdown?
-a langauge aimed at making writing in a text editor easier and readable with simple
+a language aimed at making writing in a text editor easier and readable with simple
 text formatting and easy to convert to html
 
 ### Text formatting
@@ -33,8 +33,6 @@ Header 4 - \#\#\#\#
 |-------------------|------------------------|
 | \* or \_          | *italics*              |
 | \*\* or \_\_      | **bold**               |
-| \~\~              | \~\~strikethrough \~\~ |
-| `|`nrow(mtcars)\` |                        |
 | \^                | 10^2^                  |
 | \~                | log~10~                |
 
@@ -44,7 +42,7 @@ Header 4 - \#\#\#\#
 
 ![embl logo](https://www.embl.de/layout/images/external/common/embl_logo.png)
 
-![rmd workfllow](/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/workflow.png)
+![rmd workfllow](/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/images/workflow.png)
 
 ## Code chunk
 
@@ -63,10 +61,6 @@ Header 4 - \#\#\#\#
 ```{r}
 # try introducing a syntax error in one of the lines
 range(diamonds$price)
-
-mean(diamonds$x)
-mean(diamonds$y)
-mean(diamonds$z)
 
 unique(diamonds$cut)
 
@@ -105,12 +99,13 @@ ggplot(diamonds, aes(x = cut, y = price)) +
 -   include: displays code only
 -   eval: suppress running of code but continues to display code
 
-Try out other options using the code chunk above ![chunk options](/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/chunk_options_table.png)
+Try out other options using the code chunk above 
+
+![chunk options](/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/images/chunk_options_table.png)
 
 2.  What are the differences between messages and warnings?
 
 ```{r message example}
-message("You will not see the message.")
 library(tidyverse)
 
 ```
@@ -128,16 +123,16 @@ cor( c( 1 , 1 ), c( 2 , 3 ) )
 -   use dependson option to solve this prob
 
 ```{r raw_data}
-rawdata <- diamonds[1:10, ]
+rawdata <- diamonds
 head(rawdata)
 ```
 
 Here processed data is cached but if rawdata file is changed, processed data will still run the dplyr pipeline for "a_very_large_file"
 
-```{r processed_data, cache = TRUE, dependson = TRUE}
+```{r processed_data, cache = TRUE}
 processed_data <- rawdata %>% 
-  filter(cyl == 4) %>% 
-  mutate(sec = qsec*4)
+  filter(cut == "ideal") %>% 
+  mutate(xyz = x + y+ z)
 
 head(processed_data)
 ```
@@ -158,6 +153,8 @@ knitr::opts_chunk$set(echo = TRUE)
 The data consists of `r length(unique(diamonds$cut))` types of cut. The range of prices is between
 `r min(diamonds$price)` and `r max(diamonds$price)`
 
+[Rmd cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf)
+
 ## YAML header
 
 Yet Another Markdown Language; used to control whole report settings.
@@ -166,7 +163,7 @@ Try out the following options with the example_report.rmd (can be downloaded fro
 ### Params
 
 1. generating the same analysis for subsets of data
--introduce 'age' variable in params and params$ageis now recognised as a variable
+-introduce 'age' variable in params and params$age is now recognised as a variable
 in the code chunks
 - try changing the value of age at params and re-run the last code chunk
 
@@ -189,7 +186,7 @@ dropdown button from knit
 - use render() and also specify things like file names
 
 ```{r}
-rmarkdown::render(input = "example_report.Rmd", output_file = "colon_example_report.Rmd", params = list(data ="/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/colon.csv" ))
+rmarkdown::render(input = "example_report.Rmd", output_file = "colon_example_report.Rmd", params = list(data ="/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/data/colon.csv" ))
 
 ```
 
@@ -199,7 +196,7 @@ rmarkdown::render(input = "example_report.Rmd", output_file = "colon_example_rep
 reports <- tibble(
   data_type =  c("colon", "lung", "kidney"),
   filename = stringr::str_c("example_report_", data_type, ".html"),
-  params = purrr::map(paste0(data_type, ".csv"),  ~ list(data = .))
+  params = purrr::map(paste0("data/", data_type, ".csv"),  ~ list(data = .))
 )
 
 reports %>% 
@@ -210,7 +207,7 @@ reports %>%
 
 
 
-[Rmd cheatsheet](https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf)
+
 
 ## Output formats
 
@@ -271,15 +268,31 @@ ioslides_presentations
 > -   "h": highlight code
 > -   "p" presenter notes
 
-- add presenter's notes with 
-<div>
+You can add presenter's notes by enclosing your notes with the following
+```{r, eval = FALSE}
+<div class="notes">
 
-{.notes} This is my *note*.
+This is my *note*.
 
 </div>
 
+```
+
 6. Dashboards
+Try converting your example_report.Rmd into presentations by specfying output in YAML header as
+flexdashboard::flex_dashboard
+
+- highlight brief and key summaries of a report
+- Embed a wide variety of components including HTML widgets, R graphics, tabular data
+
 - level 1 header - new page
 - level 2 header - new column
 - level 3 header - new row
 
+You can also add interactive components in 
+```{r}
+p = ggplot(diamonds[1:50, ], aes(x = price, y = x))+
+  geom_point()
+
+plotly::ggplotly(p)
+```

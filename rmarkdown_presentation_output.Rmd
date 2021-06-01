@@ -24,14 +24,14 @@ library(survminer)
 These are data from one of the *first* successful trials of adjuvant chemotherapy for colon cancer. There are two records per person, one for recurrence and one for death. 
 </div>
 
-```{r, message = FALSE}
+```{r data, message = FALSE}
 data(colon)
 head(colon)
 ```
 
 ## Do females survive better than males?
 
-```{r}
+```{r survival male vs female}
 # compute kaplan-Meier survival estimate
 fit <- survfit(Surv(time, status) ~ sex, data = colon)
 
@@ -47,7 +47,7 @@ The median survival time for sex=1 (Male group) is 2200 days, while it is 2500 d
 ## Do patients older than a specified age survive less? 
 It is also interesting to find out if survival rates of treatment differ between patients with older than `r params$age`
 
-```{r}
+```{r survival ages}
 agegp = dat %>% filter(age > params$age)
 ggsurvplot(survfit(Surv(time, status)~ sex, data = agegp))
 ```

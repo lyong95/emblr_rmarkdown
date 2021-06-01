@@ -5,14 +5,12 @@ date: "13/05/2021"
 output: html_document
 params: 
   age: 20
-  data: "/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/lung.csv"
+  data: "data/lung.csv"
 ---
 
 ```{r setup}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 ```
-
-[Rmd cheatsheet][<https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf>]
 
 ```{r, include = FALSE}
 #load packages
@@ -24,24 +22,19 @@ library(survminer)
 
 ## Description of data
 
-These are data from one of the *first* successful trials of adjuvant chemotherapy for colon cancer. There are two records per person, one for recurrence and one for death.
-
-![info](/g/typas/Personal_Folders/Luoyan/emblR/Rmarkdown/info.png)
-
-```{r, message = FALSE}
+```{r raw data, message = FALSE}
 dat = read.csv(params$data)
 head(dat)
 ```
 
-The data set consisted of `r nrow(dat)` records. A summary of the data set is presented in the table below.
 
-```{r}
+```{r summary of data}
 summary(dat)
 ```
 
-## Do females survive better than males?
+## Do females survive longer than males?
 
-```{r}
+```{r survival males vs females}
 # compute kaplan-Meier survival estimate
 fit <- survfit(Surv(time, status) ~ sex, data = dat)
 
@@ -52,12 +45,11 @@ ggsurvplot(fit,
           palette = c("#E7B800", "#2E9FDF"))
 ```
 
-The median survival time for sex=1 (Male group) is 2200 days, while it is 2500 days for sex=2 (Female).
 
-## Do patients older than a specified age survive less? 
-It is also interesting to find out if survival rates of treatment differ between patients with older than `r params$age`
-
-```{r}
+```{r survival ages}
 agegp = dat %>% filter(age > params$age)
-ggsurvplot(survfit(Surv(time, status)~ sex, data = agegp))
+p = ggsurvplot(survfit(Surv(time, status)~ sex, data = agegp))
+
 ```
+
+
